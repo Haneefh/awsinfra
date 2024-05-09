@@ -1,5 +1,4 @@
 from aws_cdk import (
-    # Duration,
     Stack,
      aws_ssm as ssm,
      aws_lambda as aws_lambda,
@@ -14,7 +13,7 @@ from constructs import Construct
 from aws_cdk.lambda_layer_kubectl_v29 import KubectlV29Layer
 import awsinfra.config as config
 import aws_cdk as cdk
-# Class to create Lambda function to get parameter values from Parameter Store
+# Stack that creates a Lambda Function , SSM Parameter with the String Value and Custom Resource to invoke the Lambda
 class AwsinfraStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
@@ -50,9 +49,11 @@ class AwsinfraStack(Stack):
                             resource_type="Custom::MyCustomResourceType",
                             service_token=lambda_get_param.function_arn,
                             )
+        # Get the value from Lambda Function corresponding to the Parameter store value generatd which will be required for the Replica Count in Helm Chart
         self.replica_value = cr.get_att("param")
 
 
+# Stack that sets up VPC
 class NetworkStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -74,7 +75,7 @@ class NetworkStack(Stack):
                               cidr_mask=24,
                           )]
                       )
-
+# Stack that set up an EKS Cluster in the VPC created in NetworkStack and deploy the Helm Chart
 class EksStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, vpc: ec2.Vpc, replica_value: int, **kwargs) -> None:
