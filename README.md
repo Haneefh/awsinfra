@@ -27,14 +27,14 @@ $ cdk synth
 ## Description :
 The project achieves the below . Its divided into three CDK Stacks
 ### AwsinfraStack
-1. Creates an SSM Paramter stores and stores a string value "development" "production" and "staging" based on the configuration.
+1. Creates an SSM Paramter store and stores a string value "development", "production" or "staging" based on the configuration user provides.
 2. Creates a Lambda function and a custom resource which invokes the lambda Function. The Lambda function reads the parameter string value and stores it which is required in the following setup.
 
 ### Network Stack
 1. Creates the VPC with a Public and Private Subnets .Also sets up Internet gateway and a Nat gateway.
 
 ### EksStack
-1. Creates and EKS Cluster in the above vpc .
+1. Creates an EKS Cluster in the VPC sdetup using Network Stack.
 2. Sets up Helm chart and uses the value retrieved by the Lambda function to pass onto the Helm Chart Value for "controller.replicaCount"
 
 ## Testing
