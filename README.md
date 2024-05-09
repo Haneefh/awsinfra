@@ -1,23 +1,9 @@
 
-# Welcome to your CDK Python project!
-
-This is a blank project for CDK development with Python.
-
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
-
-To manually create a virtualenv on MacOS and Linux:
-
+# An AWS CDK Project to setup EKS Cluster and Install an application using Helm Chart
+Setting up the environment to run the project
 ```
 $ python -m venv .venv
 ```
-
 After the init process completes and the virtualenv is created, you can use the following
 step to activate your virtualenv.
 
@@ -26,33 +12,43 @@ $ source .venv/bin/activate
 ```
 
 If you are a Windows platform, you would activate the virtualenv like this:
-
 ```
 % .venv\Scripts\activate.bat
 ```
-
 Once the virtualenv is activated, you can install the required dependencies.
-
 ```
 $ pip install -r requirements.txt
 ```
-
 At this point you can now synthesize the CloudFormation template for this code.
-
 ```
 $ cdk synth
 ```
 
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
+## Description :
+The project achieves the below . Its divided into three CDK Stacks
+### AwsinfraStack
+1. Creates an SSM Paramter stores and stores a string value "development" "production" and "staging" based on the configuration.
+2. Creates a Lambda function and a custom resource which invokes the lambda Function. The Lambda function reads the parameter string value and stores it which is required in the following setup.
 
-## Useful commands
+### Network Stack
+1. Creates the VPC with a Public and Private Subnets .Also sets up Internet gateway and a Nat gateway.
 
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
+### EksStack
+1. Creates and EKS Cluster in the above vpc .
+2. Sets up Helm chart and uses the value retrieved by the Lambda function to pass onto the Helm Chart Value for "controller.replicaCount"
 
-Enjoy!
+## Testing
+A test using pytest is written to test the functionality of Lambda function and it can be executed as below
+
+```
+  pytest
+```
+### Note -
+__The Lambda function built using aws cdk requires docker installed on the machine executing cdk as docker is used  to build 
+zip the external dependencies required for the Lambda Function__
+
+Usage
+```
+  cdk synth --all
+  cdk deploy *
+```
